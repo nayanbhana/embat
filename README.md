@@ -1,5 +1,7 @@
 ![embat Logo](./logo.svg)
 
+![build](https://github.com/nayanbhana/embat/actions/workflows/build.yml/badge.svg)
+
 Embat is a Go library for handling batching and processing of jobs using a micro-batching approach.
 
 ## Features
