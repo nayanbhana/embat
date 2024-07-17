@@ -20,9 +20,16 @@ Install Embat using `go get`:
 go get github.com/nayanbhana/embat
 ```
 
+## Run example and tests
+
+```sh
+make example
+make test
+```
+
 ## Usage
 
-### 1. Define a Batch Processor
+### 1. Define a BatchProcessor
 
 Implement the `BatchProcessor` interface to define how jobs are processed:
 

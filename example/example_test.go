@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"sync"
 	"testing"
 
 	"github.com/nayanbhana/embat"
@@ -39,23 +40,14 @@ func TestExample(t *testing.T) {
 	)
 
 	job1 := embat.NewJob(MyJobType{Data: "job1"})
-	job2 := embat.NewJob(MyJobType{Data: "job2"})
-	job3 := embat.NewJob(MyJobType{Data: "job3"})
-	job4 := embat.NewJob(MyJobType{Data: "job4"})
-	job5 := embat.NewJob(MyJobType{Data: "job5"})
 
+	wg := sync.WaitGroup{}
+	wg.Add(5)
 	resultCh1 := batcher.Submit(job1)
-	resultCh2 := batcher.Submit(job2)
-	resultCh3 := batcher.Submit(job3)
-	resultCh4 := batcher.Submit(job4)
-	resultCh5 := batcher.Submit(job5)
 	batcher.Shutdown()
-
 	fmt.Printf("%+v\n", <-resultCh1)
-	fmt.Printf("%+v\n", <-resultCh2)
-	fmt.Printf("%+v\n", <-resultCh3)
-	fmt.Printf("%+v\n", <-resultCh4)
-	fmt.Printf("%+v\n", <-resultCh5)
+	wg.Done()
+	go wg.Wait()
 
 }
 
