@@ -51,24 +51,26 @@ type Result[R any] struct {
 
 ### 3. Initialize a MicroBatcher
 
-Check out an example in the example folder
+Check out an example in the example folder.
 
 ### 4. Options
 
 #### WithFrequency
 
+Default frequency is set to 5 seconds.
 Sets the processing interval for the batcher. Example:
 
 ```go
-embat.WithFrequency[int, int](1 * time.Second)
+embat.WithFrequency[J, R](1 * time.Second)
 ```
 
-#### WithSize
+#### WithBatchSize
 
+Default batch size is set to 100.
 Sets the batch size for processing. Example:
 
 ```go
-embat.WithSize 
+embat.WithBatchSize[J, R](10)
 ```
 
 #### WithLogger

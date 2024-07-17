@@ -19,8 +19,8 @@ type BatchProcessor[J any, R any] interface {
 func NewMicroBatcher[J any, R any](processor BatchProcessor[J, R], opts ...Option[J, R]) *MicroBatcher[J, R] {
 	mb := &MicroBatcher[J, R]{
 		processor: processor,
-		batchSize: 1,
-		frequency: 1 * time.Second,
+		batchSize: 100,
+		frequency: 5 * time.Second,
 		jobs: jobs[J]{
 			s: make([]Job[J], 0),
 		},
