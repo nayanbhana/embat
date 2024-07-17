@@ -88,7 +88,6 @@ func TestMicroBatcher_Shutdown_completes_all_jobs(t *testing.T) {
 			return results
 		}).Times(3)
 
-	// Set frequency to 50ms to ensure all jobs are processed before shutdown
 	mb := embat.NewMicroBatcher[string, int](
 		mbp,
 		embat.WithFrequency[string, int](1*time.Second),
@@ -109,6 +108,7 @@ func TestMicroBatcher_Shutdown_completes_all_jobs(t *testing.T) {
 	}
 	mb.Shutdown()
 	ts := time.Since(n)
+	// Assert that the shutdown happened before all jobs were processed
 	assert.True(
 		t,
 		ts.Seconds() < float64(time.Second*time.Duration(numJobs)),
