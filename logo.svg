@@ -1,0 +1,28 @@
+<svg width="300" height="230" xmlns="http://www.w3.org/2000/svg">
+    <!-- Gradient Definition -->
+    <defs>
+        <linearGradient id="grad2" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" style="stop-color:#ff6a00;stop-opacity:1" />
+            <stop offset="100%" style="stop-color:#ee0979;stop-opacity:1" />
+        </linearGradient>
+        <filter id="f1" x="0" y="0">
+            <feGaussianBlur in="SourceGraphic" stdDeviation="15" />
+        </filter>
+    </defs>
+
+    <!-- Background -->
+    <rect width="100%" height="100%" fill="url(#grad2)" />
+
+    <!-- Abstract Shapes -->
+    <circle cx="150" cy="100" r="90" fill="none" stroke="#fff" stroke-width="5" filter="url(#f1)"/>
+    <circle cx="150" cy="100" r="70" fill="none" stroke="#fff" stroke-width="5"/>
+    <circle cx="150" cy="100" r="50" fill="none" stroke="#fff" stroke-width="5"/>
+
+    <!-- Central Shape -->
+    <polygon points="150,55 130,145 170,145" fill="none" stroke="#fff" stroke-width="5"/>
+
+    <!-- Text -->
+    <text x="50%" y="93%" font-family="Arial, sans-serif" font-size="40" fill="#fff" text-anchor="middle" alignment-baseline="middle" font-weight="bold">
+        embat
+    </text>
+</svg>
