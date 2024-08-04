@@ -18,6 +18,9 @@ func WithFrequency[J any, R any](frequency time.Duration) Option[J, R] {
 func WithBatchSize[J any, R any](size int) Option[J, R] {
 	return func(mb *MicroBatcher[J, R]) {
 		mb.batchSize = size
+		mb.jobs = jobsC[J]{
+			c: make(chan Job[J], size),
+		}
 	}
 }
 
