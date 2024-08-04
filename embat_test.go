@@ -128,8 +128,7 @@ func TestMicroBatcher_Shutdown_completes_all_jobs(t *testing.T) {
 				assert.Equal(t, 42, result.Result)
 				wg.Done()
 			case <-time.After(15 * time.Second):
-				t.Error("expected result not received in time")
-				return
+				assert.Fail(t, "expected result not received in time")
 			}
 		}
 	}()

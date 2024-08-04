@@ -59,7 +59,6 @@ func TestExample(t *testing.T) {
 
 }
 
-// logger is a Logger for unit tests
 type logger struct {
 	t       testing.TB
 	enabled bool
