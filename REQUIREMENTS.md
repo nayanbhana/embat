@@ -1,4 +1,4 @@
-### Create a Mico Batcher
+### Create a Micro Batcher
 Micro-batching is a technique used in processing pipelines where individual tasks are grouped
 together into small batches. This can improve throughput by reducing the number of requests made
 to a downstream system. Your task is to implement a micro-batching library, with the following
