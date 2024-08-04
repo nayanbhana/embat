@@ -29,6 +29,7 @@ func NewMicroBatcher[J any, R any](processor BatchProcessor[J, R], opts ...Optio
 		results: results[R]{
 			m: make(map[JobID]chan Result[R]),
 		},
+		shutdownCh: make(chan struct{}),
 	}
 
 	for _, opt := range opts {
@@ -106,6 +107,8 @@ type MicroBatcher[J any, R any] struct {
 	shutdownOnce sync.Once
 	// shutdownCalled flag to indicate if shutdown has been called.
 	shutdownCalled atomic.Bool
+	// shutdownCh is a channel to signal shutdown.
+	shutdownCh chan struct{}
 	// wg is a wait group to ensure all jobs are processed before shutdown.
 	wg sync.WaitGroup
 }
@@ -147,7 +150,7 @@ func (mb *MicroBatcher[J, R]) Shutdown() {
 		mb.logger.Debug("shutdown initiated")
 		mb.shutdownCalled.Swap(true)
 	})
-	mb.jobs.close()
+	close(mb.shutdownCh)
 	go mb.wg.Wait()
 }
 
@@ -159,12 +162,14 @@ func (mb *MicroBatcher[J, R]) start() {
 
 	for {
 		select {
-		case <-ticker.C:
-			mb.processBatch()
+		case <-mb.shutdownCh:
 			if mb.isComplete() {
+				mb.jobs.close()
 				mb.logger.Debug("all jobs processed, shutting down")
 				return
 			}
+		case <-ticker.C:
+			mb.processBatch()
 		}
 	}
 }
@@ -197,7 +202,7 @@ func (mb *MicroBatcher[J, R]) isShutdown() bool {
 
 // isComplete returns true if there are no more jobs to process and shutdown has been called.
 func (mb *MicroBatcher[J, R]) isComplete() bool {
-	return mb.jobs.length() == 0 && mb.shutdownCalled.Load()
+	return mb.jobs.length() == 0
 }
 
 type JobID string
