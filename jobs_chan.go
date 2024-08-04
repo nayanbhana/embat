@@ -1,28 +1,18 @@
 package embat
 
-import (
-	"sync"
-)
-
-// jobs holds a slice of jobs to be processed.
-type jobs[J any] struct {
-	mu sync.Mutex
-	s  []Job[J]
+// jobsC holds a slice of jobs to be processed.
+type jobsC[J any] struct {
+	c chan Job[J]
 }
 
 // add safely adds a job to the jobs slice.
-func (j *jobs[J]) add(job Job[J]) {
-	j.mu.Lock()
-	defer j.mu.Unlock()
-	j.s = append(j.s, job)
+func (j *jobsC[J]) add(job Job[J]) {
+	j.c <- job
 }
 
 // next returns the next batch of jobs to be processed and removes them from the jobs slice.
-func (j *jobs[J]) next(defaultBatchSize int) []Job[J] {
-	j.mu.Lock()
-	defer j.mu.Unlock()
-
-	jLength := len(j.s)
+func (j *jobsC[J]) next(defaultBatchSize int) []Job[J] {
+	jLength := len(j.c)
 	// If there are no jobs, return an empty slice.
 	if jLength == 0 {
 		return []Job[J]{}
@@ -35,15 +25,18 @@ func (j *jobs[J]) next(defaultBatchSize int) []Job[J] {
 	}
 	batch := make([]Job[J], batchSize)
 	// Copy the jobs to be processed the batch.
-	copy(batch, j.s[:batchSize])
-	// Remove the jobs to be processed from the slice.
-	j.s = j.s[batchSize:]
+	for i := range batch {
+		batch[i] = <-j.c
+	}
+
 	return batch
 }
 
 // length returns the number of jobs in the jobs slice.
-func (j *jobs[J]) length() int {
-	j.mu.Lock()
-	defer j.mu.Unlock()
-	return len(j.s)
+func (j *jobsC[J]) length() int {
+	return len(j.c)
+}
+
+func (j *jobsC[J]) close() {
+	close(j.c)
 }

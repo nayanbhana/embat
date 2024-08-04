@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"sync"
 	"testing"
+	"time"
 
 	"github.com/nayanbhana/embat"
 )
@@ -34,20 +35,23 @@ func TestExample(t *testing.T) {
 	processor := &MyProcessor{}
 	batcher := embat.NewMicroBatcher[MyJobType, MyResultType](
 		processor,
-		embat.WithFrequency[MyJobType, MyResultType](1),
-		embat.WithBatchSize[MyJobType, MyResultType](2),
+		embat.WithFrequency[MyJobType, MyResultType](time.Second*3),
+		embat.WithBatchSize[MyJobType, MyResultType](1),
 		embat.WithLogger[MyJobType, MyResultType](&logger{t, true}),
 	)
 
 	job1 := embat.NewJob(MyJobType{Data: "job1"})
+	job2 := embat.NewJob(MyJobType{Data: "job2"})
 
 	wg := sync.WaitGroup{}
-	wg.Add(5)
+	wg.Add(1)
 	resultCh1 := batcher.Submit(job1)
+	resultCh2 := batcher.Submit(job2)
 	batcher.Shutdown()
 	fmt.Printf("%+v\n", <-resultCh1)
+	fmt.Printf("%+v\n", <-resultCh2)
 	wg.Done()
-	go wg.Wait()
+	wg.Wait()
 
 }
 

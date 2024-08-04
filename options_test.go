@@ -18,8 +18,8 @@ func TestWithFrequency(t *testing.T) {
 	assert.Equal(t, f, mb.Frequency())
 }
 
-// TestWithSize tests that the size option can be set.
-func TestWithSize(t *testing.T) {
+// TestWithBatchSize tests that the size option can be set.
+func TestWithBatchSize(t *testing.T) {
 	bs := 1000
 	mb := embat.NewMicroBatcher[int, int](nil, embat.WithBatchSize[int, int](bs))
 	assert.Equal(t, bs, mb.BatchSize())

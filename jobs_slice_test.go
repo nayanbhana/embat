@@ -9,7 +9,7 @@ import (
 
 // Test_jobID tests that jobs are being added to the jobs struct.
 func Test_jobs_add(t *testing.T) {
-	var j jobs[int]
+	var j jobsS[int]
 	var wg sync.WaitGroup
 	const numJobs = 10
 
@@ -36,7 +36,7 @@ func Test_jobs_next(t *testing.T) {
 	type testCase[J any] struct {
 		name             string
 		defaultBatchSize int
-		j                jobs[J]
+		j                jobsS[J]
 		nextBatch        []Job[J]
 		remainingJobs    []Job[J]
 	}
@@ -44,8 +44,8 @@ func Test_jobs_next(t *testing.T) {
 		{
 			name:             "empty jobs",
 			defaultBatchSize: 3,
-			j: func() jobs[int] {
-				return jobs[int]{}
+			j: func() jobsS[int] {
+				return jobsS[int]{}
 			}(),
 			nextBatch:     []Job[int]{},
 			remainingJobs: []Job[int](nil),
@@ -53,8 +53,8 @@ func Test_jobs_next(t *testing.T) {
 		{
 			name:             "less jobs than batch size",
 			defaultBatchSize: 3,
-			j: func() jobs[int] {
-				return jobs[int]{
+			j: func() jobsS[int] {
+				return jobsS[int]{
 					s: []Job[int]{
 						{ID: JobID('a'), Data: 1},
 					},
@@ -68,8 +68,8 @@ func Test_jobs_next(t *testing.T) {
 		{
 			name:             "equal jobs and batch size",
 			defaultBatchSize: 1,
-			j: func() jobs[int] {
-				return jobs[int]{
+			j: func() jobsS[int] {
+				return jobsS[int]{
 					s: []Job[int]{
 						{ID: JobID('a'), Data: 1},
 					},
@@ -83,8 +83,8 @@ func Test_jobs_next(t *testing.T) {
 		{
 			name:             "more jobs than batch size",
 			defaultBatchSize: 1,
-			j: func() jobs[int] {
-				return jobs[int]{
+			j: func() jobsS[int] {
+				return jobsS[int]{
 					s: []Job[int]{
 						{ID: JobID('a'), Data: 1},
 						{ID: JobID('b'), Data: 2},

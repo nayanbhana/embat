@@ -22,8 +22,8 @@ func NewMicroBatcher[J any, R any](processor BatchProcessor[J, R], opts ...Optio
 		processor: processor,
 		batchSize: 100,
 		frequency: 5 * time.Second,
-		jobs: jobs[J]{
-			s: make([]Job[J], 0),
+		jobs: jobsC[J]{
+			c: make(chan Job[J], 1),
 		},
 		logger: noOpLogger{},
 		results: results[R]{
@@ -84,7 +84,7 @@ type MicroBatcher[J any, R any] struct {
 	// frequency is the duration between batch processing attempts.
 	frequency time.Duration
 	// jobs is the current list of pending jobs to be processed.
-	jobs jobs[J]
+	jobs jobsC[J]
 	// logger is the logger for the MicroBatcher.
 	// default is no logging, if you want logging you can provide your own logger.
 	logger Logger
@@ -137,6 +137,7 @@ func (mb *MicroBatcher[J, R]) Shutdown() {
 		mb.logger.Debug("shutdown initiated")
 		mb.shutdownCalled.Swap(true)
 	})
+	mb.jobs.close()
 	go mb.wg.Wait()
 }
 
