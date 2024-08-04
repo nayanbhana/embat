@@ -77,6 +77,16 @@ type Result[R any] struct {
 	Err error
 }
 
+// jobs is an interface for handling jobs
+// allows for different implementations of jobs
+// e.g. slice, channel
+type jobs[J any] interface {
+	add(job Job[J])
+	next(defaultBatchSize int) []Job[J]
+	length() int
+	close()
+}
+
 // MicroBatcher handles batching and processing of jobs.
 type MicroBatcher[J any, R any] struct {
 	// batchSize is the maximum number of jobs in each batch.
@@ -84,7 +94,7 @@ type MicroBatcher[J any, R any] struct {
 	// frequency is the duration between batch processing attempts.
 	frequency time.Duration
 	// jobs is the current list of pending jobs to be processed.
-	jobs jobsC[J]
+	jobs jobs[J]
 	// logger is the logger for the MicroBatcher.
 	// default is no logging, if you want logging you can provide your own logger.
 	logger Logger
