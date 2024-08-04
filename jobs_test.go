@@ -18,7 +18,7 @@ func Test_jobs_add(t *testing.T) {
 	for i := 0; i < numJobs; i++ {
 		go func(id int) {
 			defer wg.Done()
-			j.add(Job[int]{ID: jobID(rune(id)), Data: id})
+			j.add(Job[int]{ID: JobID(rune(id)), Data: id})
 		}(i)
 	}
 	wg.Wait()
@@ -56,12 +56,12 @@ func Test_jobs_next(t *testing.T) {
 			j: func() jobs[int] {
 				return jobs[int]{
 					s: []Job[int]{
-						{ID: jobID('a'), Data: 1},
+						{ID: JobID('a'), Data: 1},
 					},
 				}
 			}(),
 			nextBatch: []Job[int]{
-				{ID: jobID('a'), Data: 1},
+				{ID: JobID('a'), Data: 1},
 			},
 			remainingJobs: []Job[int]{},
 		},
@@ -71,12 +71,12 @@ func Test_jobs_next(t *testing.T) {
 			j: func() jobs[int] {
 				return jobs[int]{
 					s: []Job[int]{
-						{ID: jobID('a'), Data: 1},
+						{ID: JobID('a'), Data: 1},
 					},
 				}
 			}(),
 			nextBatch: []Job[int]{
-				{ID: jobID('a'), Data: 1},
+				{ID: JobID('a'), Data: 1},
 			},
 			remainingJobs: []Job[int]{},
 		},
@@ -86,16 +86,16 @@ func Test_jobs_next(t *testing.T) {
 			j: func() jobs[int] {
 				return jobs[int]{
 					s: []Job[int]{
-						{ID: jobID('a'), Data: 1},
-						{ID: jobID('b'), Data: 2},
+						{ID: JobID('a'), Data: 1},
+						{ID: JobID('b'), Data: 2},
 					},
 				}
 			}(),
 			nextBatch: []Job[int]{
-				{ID: jobID('a'), Data: 1},
+				{ID: JobID('a'), Data: 1},
 			},
 			remainingJobs: []Job[int]{
-				{ID: jobID('b'), Data: 2},
+				{ID: JobID('b'), Data: 2},
 			},
 		},
 	}

@@ -9,7 +9,7 @@ import (
 func Test_results_add(t *testing.T) {
 	// Initialise results type.
 	var r results[int]
-	r.m = make(map[jobID]chan Result[int])
+	r.m = make(map[JobID]chan Result[int])
 	const numJobs = 5
 
 	// Add channels concurrently.
@@ -18,7 +18,7 @@ func Test_results_add(t *testing.T) {
 	for i := 0; i < numJobs; i++ {
 		go func(id int) {
 			defer wg.Done()
-			jobID := jobID(rune(id))
+			jobID := JobID(rune(id))
 			ch := make(chan Result[int], 1)
 			r.add(jobID, ch)
 		}(i)
@@ -36,12 +36,12 @@ func Test_results_add(t *testing.T) {
 func Test_results_sendResults(t *testing.T) {
 	// Initialise results type.
 	var r results[int]
-	r.m = make(map[jobID]chan Result[int])
+	r.m = make(map[JobID]chan Result[int])
 	const numJobs = 3
 
 	// Add channels to results.
 	for i := 0; i < numJobs; i++ {
-		jobID := jobID(rune(i))
+		jobID := JobID(rune(i))
 		ch := make(chan Result[int], 1)
 		r.add(jobID, ch)
 	}
@@ -49,7 +49,7 @@ func Test_results_sendResults(t *testing.T) {
 	// Prepare job results.
 	var jobResults []Result[int]
 	for i := 0; i < numJobs; i++ {
-		jobID := jobID(rune(i))
+		jobID := JobID(rune(i))
 		jobResults = append(jobResults, Result[int]{JobID: jobID, Result: i * 2})
 	}
 
