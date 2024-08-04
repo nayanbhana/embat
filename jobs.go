@@ -40,3 +40,10 @@ func (j *jobs[J]) next(defaultBatchSize int) []Job[J] {
 	j.s = j.s[batchSize:]
 	return batch
 }
+
+// length returns the number of jobs in the jobs slice.
+func (j *jobs[J]) length() int {
+	j.mu.Lock()
+	defer j.mu.Unlock()
+	return len(j.s)
+}

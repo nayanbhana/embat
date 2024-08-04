@@ -7,11 +7,11 @@ import (
 // results holds a map of the results of processed jobs.
 type results[R any] struct {
 	mu sync.Mutex
-	m  map[jobID]chan Result[R]
+	m  map[JobID]chan Result[R]
 }
 
 // add safely adds a new job result channel to the results map
-func (r *results[R]) add(jobID jobID, ch chan Result[R]) {
+func (r *results[R]) add(jobID JobID, ch chan Result[R]) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 	r.m[jobID] = ch

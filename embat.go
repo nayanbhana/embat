@@ -4,6 +4,7 @@ package embat
 import (
 	"errors"
 	"sync"
+	"sync/atomic"
 	"time"
 
 	"github.com/google/uuid"
@@ -26,7 +27,7 @@ func NewMicroBatcher[J any, R any](processor BatchProcessor[J, R], opts ...Optio
 		},
 		logger: noOpLogger{},
 		results: results[R]{
-			m: make(map[jobID]chan Result[R]),
+			m: make(map[JobID]chan Result[R]),
 		},
 	}
 
@@ -51,13 +52,13 @@ func NewJob[T any](data T) Job[T] {
 // The generic type J is the specific data for the job supplied by the consumer.
 type Job[J any] struct {
 	// ID is a unique identifier for the job.
-	ID jobID
+	ID JobID
 	// Data holds the specific data for the job, of the generic type J.
 	Data J
 }
 
 // NewResult creates a new Result with the given JobID and outcome.
-func NewResult[R any](jobID jobID, result R, err error) Result[R] {
+func NewResult[R any](jobID JobID, result R, err error) Result[R] {
 	return Result[R]{
 		JobID:  jobID,
 		Result: result,
@@ -69,7 +70,7 @@ func NewResult[R any](jobID jobID, result R, err error) Result[R] {
 // The generic type R is the outcome of processing the job supplied by the consumer.
 type Result[R any] struct {
 	// JobID is the identifier of the original job that was processed.
-	JobID jobID
+	JobID JobID
 	// Result holds the outcome of processing the job, of the generic type R.
 	Result R
 	// Err holds any error that occurred during submission or processing of the job.
@@ -94,7 +95,7 @@ type MicroBatcher[J any, R any] struct {
 	// shutdownOnce ensures that shutdown is called only once.
 	shutdownOnce sync.Once
 	// shutdownCalled flag to indicate if shutdown has been called.
-	shutdownCalled bool
+	shutdownCalled atomic.Bool
 	// wg is a wait group to ensure all jobs are processed before shutdown.
 	wg sync.WaitGroup
 }
@@ -134,7 +135,7 @@ func (mb *MicroBatcher[J, R]) BatchSize() int {
 func (mb *MicroBatcher[J, R]) Shutdown() {
 	mb.shutdownOnce.Do(func() {
 		mb.logger.Debug("shutdown initiated")
-		mb.shutdownCalled = true
+		mb.shutdownCalled.Swap(true)
 	})
 	go mb.wg.Wait()
 }
@@ -180,16 +181,16 @@ func (mb *MicroBatcher[J, R]) shutdownResult(job Job[J]) <-chan Result[R] {
 
 // isShutdown returns true if the MicroBatcher has been shutdown.
 func (mb *MicroBatcher[J, R]) isShutdown() bool {
-	return mb.shutdownCalled
+	return mb.shutdownCalled.Load()
 }
 
 // isComplete returns true if there are no more jobs to process and shutdown has been called.
 func (mb *MicroBatcher[J, R]) isComplete() bool {
-	return len(mb.jobs.s) == 0 && mb.shutdownCalled
+	return mb.jobs.length() == 0 && mb.shutdownCalled.Load()
 }
 
-type jobID string
+type JobID string
 
-func newJobID() jobID {
-	return jobID(uuid.New().String())
+func newJobID() JobID {
+	return JobID(uuid.New().String())
 }
