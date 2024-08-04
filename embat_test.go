@@ -88,10 +88,12 @@ func TestMicroBatcher_Shutdown_completes_all_jobs(t *testing.T) {
 			return results
 		}).Times(3)
 
+	frequency := time.Second
+	batchSize := 1
 	mb := embat.NewMicroBatcher[string, int](
 		mbp,
-		embat.WithFrequency[string, int](1*time.Second),
-		embat.WithBatchSize[string, int](1),
+		embat.WithFrequency[string, int](frequency),
+		embat.WithBatchSize[string, int](batchSize),
 	)
 
 	// Number of jobs to submit
@@ -109,9 +111,11 @@ func TestMicroBatcher_Shutdown_completes_all_jobs(t *testing.T) {
 	mb.Shutdown()
 	ts := time.Since(n)
 	// Assert that the shutdown happened before all jobs were processed
+	// The time to process 3 jobs at 1 second each would be 3 seconds
+
 	assert.True(
 		t,
-		ts.Seconds() < float64(time.Second*time.Duration(numJobs)),
+		ts.Seconds() < float64(3*time.Second),
 		"shutdown before all jobs are processed",
 	)
 
