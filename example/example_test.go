@@ -42,14 +42,18 @@ func TestExample(t *testing.T) {
 
 	job1 := embat.NewJob(MyJobType{Data: "job1"})
 	job2 := embat.NewJob(MyJobType{Data: "job2"})
+	job3 := embat.NewJob(MyJobType{Data: "job3"})
 
 	wg := sync.WaitGroup{}
 	wg.Add(1)
 	resultCh1 := batcher.Submit(job1)
 	resultCh2 := batcher.Submit(job2)
 	batcher.Shutdown()
+	resultCh3 := batcher.Submit(job3)
+
 	fmt.Printf("%+v\n", <-resultCh1)
 	fmt.Printf("%+v\n", <-resultCh2)
+	fmt.Printf("%+v\n", <-resultCh3)
 	wg.Done()
 	wg.Wait()
 

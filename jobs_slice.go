@@ -47,3 +47,8 @@ func (j *jobsS[J]) length() int {
 	defer j.mu.Unlock()
 	return len(j.s)
 }
+
+// close fulfills the interface but does nothing for this implementation.
+func (j *jobsS[J]) close() {
+	return
+}
