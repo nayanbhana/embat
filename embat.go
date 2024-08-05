@@ -44,7 +44,7 @@ func NewMicroBatcher[J any, R any](processor BatchProcessor[J, R], opts ...Optio
 // NewJob creates a new Job with a generated ID.
 func NewJob[T any](data T) Job[T] {
 	return Job[T]{
-		ID:   newJobID(),
+		ID:   NewJobID(),
 		Data: data,
 	}
 }
@@ -120,7 +120,7 @@ func (mb *MicroBatcher[J, R]) Submit(job Job[J]) <-chan Result[R] {
 		return mb.shutdownResult(job)
 	}
 	if job.ID == "" {
-		job.ID = newJobID()
+		job.ID = NewJobID()
 	}
 	resultCh := make(chan Result[R], 1)
 	mb.jobs.add(job)
@@ -207,6 +207,6 @@ func (mb *MicroBatcher[J, R]) isComplete() bool {
 
 type JobID string
 
-func newJobID() JobID {
+func NewJobID() JobID {
 	return JobID(uuid.New().String())
 }
