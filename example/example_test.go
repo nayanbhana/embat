@@ -32,31 +32,52 @@ func (p *MyProcessor) Process(batch []embat.Job[MyJobType]) []embat.Result[MyRes
 }
 
 func TestExample(t *testing.T) {
+	// Define consumer processor.
 	processor := &MyProcessor{}
+
+	// Create a new MicroBatcher.
 	batcher := embat.NewMicroBatcher[MyJobType, MyResultType](
 		processor,
-		embat.WithFrequency[MyJobType, MyResultType](time.Second*3),
-		embat.WithBatchSize[MyJobType, MyResultType](1),
+		embat.WithFrequency[MyJobType, MyResultType](time.Second*1),
+		embat.WithBatchSize[MyJobType, MyResultType](2),
 		embat.WithLogger[MyJobType, MyResultType](&logger{t, true}),
 	)
 
-	job1 := embat.NewJob(MyJobType{Data: "job1"})
-	job2 := embat.NewJob(MyJobType{Data: "job2"})
-	job3 := embat.NewJob(MyJobType{Data: "job3"})
+	numberOfJobs := 6
 
 	wg := sync.WaitGroup{}
-	wg.Add(1)
-	resultCh1 := batcher.Submit(job1)
-	resultCh2 := batcher.Submit(job2)
+	results := make(chan embat.Result[MyResultType], numberOfJobs)
+
+	// Create and submit jobs.
+	for i := 1; i <= numberOfJobs; i++ {
+		wg.Add(1)
+		go func(i int) {
+			results <- <-batcher.Submit(createJob(fmt.Sprintf("job number: %v", i)))
+		}(i)
+	}
+
+	// Wait for all jobs to be processed.
+	go func() {
+		defer close(results)
+		wg.Wait()
+	}()
+
+	// Print results.
+	for r := range results {
+		fmt.Printf("%+v\n", r)
+		wg.Done()
+	}
+
+	// Shutdown the batcher.
 	batcher.Shutdown()
-	resultCh3 := batcher.Submit(job3)
 
-	fmt.Printf("%+v\n", <-resultCh1)
-	fmt.Printf("%+v\n", <-resultCh2)
-	fmt.Printf("%+v\n", <-resultCh3)
-	wg.Done()
-	wg.Wait()
+	// Submit a job after shutdown.
+	afterShutdown := batcher.Submit(createJob("job after shutdown"))
+	fmt.Printf("%+v\n", <-afterShutdown)
+}
 
+func createJob(data string) embat.Job[MyJobType] {
+	return embat.NewJob(MyJobType{Data: data})
 }
 
 type logger struct {
