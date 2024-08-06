@@ -6,7 +6,7 @@ requirements:
 
 - it should allow the caller to submit a single Job, and it should return a JobResult
 - it should process accepted Jobs in batches using a BatchProcessor
-    ○   Don't implement BatchProcessor. This should be a dependency of your library.
+  - Don't implement BatchProcessor. This should be a dependency of your library.
 - it should provide a way to configure the batching behaviour i.e. size and frequency
 - it should expose a shutdown method which returns after all previously accepted Jobs are
 processed
