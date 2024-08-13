@@ -110,12 +110,12 @@ func TestMicroBatcher_Shutdown_completes_all_jobs(t *testing.T) {
 	}
 	mb.Shutdown()
 	ts := time.Since(n)
+
 	// Assert that the shutdown happened before all jobs were processed
 	// The time to process 3 jobs at 1 second each would be 3 seconds
-
 	assert.True(
 		t,
-		ts.Seconds() < float64(3*time.Second),
+		ts < 3*time.Second,
 		"shutdown before all jobs are processed",
 	)
 
